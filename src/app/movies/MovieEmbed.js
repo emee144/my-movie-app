@@ -7,7 +7,7 @@ const MovieEmbed = ({ videoId }) => {
       <iframe
         src={`https://player.vimeo.com/video/${videoId}?title=0&byline=0&portrait=0`}
         className="w-full h-full rounded-xl shadow-md"
-        style={{ border: 'none' }}  // Replacing frameBorder with a style to remove borders
+        style={{ border: 'none' }}  
         allow="autoplay; fullscreen; picture-in-picture"
         allowFullScreen
         title="Movie Video"
