@@ -20,7 +20,7 @@
     "framer-motion": "^12.27.5",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.1.4",
-    "next": "15.2.3",
+    "next": "15.2.8",
     "next-auth": "^4.24.11",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
