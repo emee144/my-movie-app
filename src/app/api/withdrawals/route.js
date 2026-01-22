@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { v4 as uuidv4 } from "uuid";
 
-import Withdrawal from "@/app/lib/models/Withdrawal";
+import Withdrawal from "@/lib/models/Withdrawal";
 import sequelize from "@/app/lib/sequelize";
-import { validateToken } from "@/app/lib/auth";
+import { validateToken } from "@/lib/auth";
 
 // Ensure the DB is connected and synced (only once)
 await sequelize.sync();

@@ -1,14 +1,11 @@
 'use client';
-
 import React, { useEffect, useState } from 'react';
-
 const MoviesPage = () => {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Fetch movies from the API route
     const fetchMovies = async () => {
       try {
         const response = await fetch('/api/auth/movies');
@@ -16,19 +13,19 @@ const MoviesPage = () => {
           throw new Error('Failed to fetch movies');
         }
         const data = await response.json();
-        setMovies(data); // Set the movie data
+        setMovies(data); 
       } catch (error) {
-        setError(error.message); // Handle any errors
+        setError(error.message); 
       } finally {
-        setLoading(false); // Stop loading spinner
+        setLoading(false); 
       }
     };
 
     fetchMovies();
-  }, []); // Empty dependency array to run only once when the component mounts
+  }, []); 
 
   if (loading) {
-    return <div className="text-center py-10">Loading...</div>; // Show loading message while fetching
+    return <div className="text-center py-10">Loading...</div>;
   }
 
   if (error) {
@@ -44,7 +41,6 @@ const MoviesPage = () => {
         {movies.map((movie) => (
           <div key={movie.id} className="bg-white rounded-lg shadow-lg overflow-hidden transition-transform transform hover:scale-105 hover:shadow-2xl">
             <div className="relative w-full h-48">
-              {/* Embed Vimeo Video */}
               <iframe
                 src={`https://player.vimeo.com/video/${movie.videoId}?title=0&byline=0&portrait=0`}
                 className="w-full h-full object-cover rounded-t-lg"
@@ -57,7 +53,7 @@ const MoviesPage = () => {
               <h2 className="text-xl font-semibold text-gray-800 mb-2">{movie.title}</h2>
               <p className="text-gray-600 text-sm mb-4">{movie.description}</p>
               <a
-                href={`/movies/${movie.id}`} // Correct link to movie detail page
+                href={`/movies/${movie.id}`} 
                 className="inline-block px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition-colors duration-300"
               >
                 Watch Now
@@ -69,5 +65,4 @@ const MoviesPage = () => {
     </div>
   );
 };
-
 export default MoviesPage;

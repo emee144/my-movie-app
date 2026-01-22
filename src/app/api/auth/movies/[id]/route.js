@@ -1,12 +1,10 @@
-// app/api/movies/[id]/route.js
-
 import { NextResponse } from "next/server";
-import { Movie } from "@/lib/models/Movie"; // Adjusted to match the consistent import path
+import { Movie } from "@/lib/models/Movie"; 
 
 export async function GET(req, { params }) {
   try {
-    const { id } = params; // Extract the movie id from the URL
-    const movie = await Movie.findByPk(id); // Fetch movie by primary key
+    const { id } = params; 
+    const movie = await Movie.findByPk(id); 
 
     if (!movie) {
       return NextResponse.json({ error: "Movie not found" }, { status: 404 });

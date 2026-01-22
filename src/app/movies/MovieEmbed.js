@@ -1,6 +1,4 @@
-// app/movies/MovieEmbed.js
 import React from 'react';
-
 const MovieEmbed = ({ videoId }) => {
   return (
     <div className="aspect-w-16 aspect-h-9 w-full max-w-4xl mx-auto">
@@ -15,5 +13,4 @@ const MovieEmbed = ({ videoId }) => {
     </div>
   );
 };
-
 export default MovieEmbed;

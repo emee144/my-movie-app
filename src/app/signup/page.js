@@ -1,137 +1,82 @@
 'use client';
 
-import Link from "next/link";
-import { useState, useEffect } from "react";
-import CheckUser from '@/components/CheckUser.js'; // keep if you have this component
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
-export default function Home() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLogin, setIsLogin] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+export default function SignupPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    // Check if token cookie exists to set authentication state
-    const token = document.cookie
-      .split('; ')
-      .find(row => row.startsWith('token='))
-      ?.split('=')[1];
-
-    if (token) {
-      setIsAuthenticated(true);
-    }
-  }, []);
-
-  const handleNormalLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setLoading(true);
 
     try {
-      const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
 
-      if (res.ok) {
-        // Set token cookie (you can customize expiry, secure flags, etc)
-        document.cookie = `token=${data.token}; path=/;`;
-        setIsAuthenticated(true);
-        alert("Login successful!");
-        // Optionally redirect or reload
-      } else {
-        alert(data.message || "Login failed");
+      if (!res.ok) {
+        setError(data.error || data.errors?.[0]?.message || "Signup failed");
+        setLoading(false);
+        return;
       }
-    } catch (error) {
-      alert("Error logging in");
-      console.error(error);
-    }
-  };
 
-  const handleNormalSignup = async (e) => {
-    e.preventDefault();
-
-    try {
-      const res = await fetch('/api/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        alert("Signup successful! Please login.");
-        setIsLogin(true);
-      } else {
-        alert(data.message || "Signup failed");
-      }
-    } catch (error) {
-      alert("Error signing up");
-      console.error(error);
+      // Store token in localStorage (or cookies if you prefer)
+      localStorage.setItem("token", data.token);
+      router.push("/"); // Redirect to home/dashboard
+    } catch (err) {
+      setError("Something went wrong. Try again.");
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen p-8">
-      <h1 className="text-3xl font-bold text-center">🎬 Welcome to Flick</h1>
-      <p className="mt-4 text-lg text-center">Browse and watch movies to earn rewards!</p>
+    <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-gray-800 p-8 rounded-lg shadow-md w-full max-w-md"
+      >
+        <h1 className="text-3xl font-bold mb-6 text-center">Sign Up</h1>
 
-      <CheckUser />
+        {error && <p className="text-red-400 mb-4">{error}</p>}
 
-      <div className="mt-6 flex gap-4 flex-wrap justify-center">
-        {!isAuthenticated && (
-          <div className="flex flex-col gap-4 mt-4">
-            <div className="flex justify-center gap-4">
-              <button
-                onClick={() => setIsLogin(true)}
-                className={`px-6 py-3 rounded-lg text-lg transition ${isLogin ? 'bg-green-600' : 'bg-gray-300'}`}
-              >
-                Login
-              </button>
-              <button
-                onClick={() => setIsLogin(false)}
-                className={`px-6 py-3 rounded-lg text-lg transition ${!isLogin ? 'bg-yellow-600' : 'bg-gray-300'}`}
-              >
-                Sign Up
-              </button>
-            </div>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          className="w-full mb-4 p-3 rounded bg-gray-700 text-white focus:outline-none"
+        />
 
-            <form onSubmit={isLogin ? handleNormalLogin : handleNormalSignup} className="flex flex-col gap-4 mt-4">
-              <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="px-4 py-2 border rounded-md"
-                required
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="px-4 py-2 border rounded-md"
-                required
-              />
-              <button
-                type="submit"
-                className={`px-6 py-3 rounded-lg text-lg ${isLogin ? 'bg-blue-600' : 'bg-yellow-600'} text-white transition`}
-              >
-                {isLogin ? 'Login' : 'Sign Up'}
-              </button>
-            </form>
-          </div>
-        )}
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          className="w-full mb-6 p-3 rounded bg-gray-700 text-white focus:outline-none"
+        />
 
-        <Link
-          href="/movies"
-          className="px-6 py-3 bg-blue-600 text-white rounded-lg text-lg hover:bg-blue-700 transition"
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-blue-500 hover:bg-blue-600 py-3 rounded font-semibold transition"
         >
-          Explore Movies
-        </Link>
-      </div>
-    </main>
+          {loading ? "Signing up..." : "Sign Up"}
+        </button>
+      </form>
+    </div>
   );
 }

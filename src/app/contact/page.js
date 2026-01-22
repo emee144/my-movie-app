@@ -10,7 +10,6 @@ export default function ContactPage() {
         transition={{ duration: 0.8, ease: "easeOut" }}
         className="max-w-6xl w-full bg-gray-800 p-12 rounded-3xl shadow-xl"
       >
-        {/* Contact Header */}
         <motion.h1
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -45,7 +44,6 @@ export default function ContactPage() {
           </p>
         </motion.div>
 
-        {/* Contact Form */}
         <motion.form
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -88,7 +86,6 @@ export default function ContactPage() {
         </motion.form>
       </motion.div>
 
-      {/* Spacing to push the footer down */}
       <div className="h-20"></div>
     </div>
   );
