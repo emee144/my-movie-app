@@ -1,42 +1,35 @@
-import sequelize from "../sequelize"; // Import the Sequelize instance
-import { DataTypes } from "sequelize";
+import mongoose from "mongoose";
 
-const Withdrawal = sequelize.define(
-  "Withdrawal",
+const withdrawalSchema = new mongoose.Schema(
   {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
-      primaryKey: true,
-      allowNull: false,
-    },
-    
     userId: {
-      type: DataTypes.UUID,  // UUID for user ID, but no foreign key constraint
-      allowNull: false,
+      type: String,
+      required: true,
     },
     amount: {
-      type: DataTypes.DECIMAL(10, 2), // Changed to DECIMAL to match migration
-      allowNull: false,
+      type: Number,
+      required: true,
     },
     tax: {
-      type: DataTypes.DECIMAL(10, 2), // Changed to DECIMAL to match migration
-      allowNull: false,
+      type: Number,
+      required: true,
     },
     net: {
-      type: DataTypes.DECIMAL(10, 2), // Changed to DECIMAL to match migration
-      allowNull: false,
+      type: Number,
+      required: true,
     },
     status: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: "Completed", // Default status
+      type: String,
+      default: "Completed",
+      required: true,
     },
   },
   {
     timestamps: true,
-    tableName: 'withdrawals', // Explicitly set table name to match migration
+    collection: "withdrawals",
   }
 );
+
+const Withdrawal = mongoose.models.Withdrawal || mongoose.model("Withdrawal", withdrawalSchema);
 
 export default Withdrawal;

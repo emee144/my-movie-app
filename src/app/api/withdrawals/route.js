@@ -1,39 +1,24 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { v4 as uuidv4 } from "uuid";
-
+import connectDB from "@/lib/mongodb";
 import Withdrawal from "@/lib/models/Withdrawal";
-import sequelize from "@/app/lib/sequelize";
 import { validateToken } from "@/lib/auth";
 
-// Ensure the DB is connected and synced (only once)
-await sequelize.sync();
-
-// 🔁 Utility to get authenticated user
 async function getAuthenticatedUser() {
   const token = cookies().get("token")?.value;
   if (!token) return null;
   return await validateToken(token);
 }
 
-// ✅ GET: Get withdrawals for authenticated user
 export async function GET() {
-  console.log("[WITHDRAWAL][GET] Request received");
-
   try {
+    await connectDB();
     const user = await getAuthenticatedUser();
-    if (!user) {
-      console.log("[WITHDRAWAL][GET] Invalid or missing token");
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const withdrawals = await Withdrawal.findAll({
-      where: { userId: user.id },
-      order: [["createdAt", "DESC"]],
-      attributes: ["id", "amount", "tax", "net", "status", "createdAt", "updatedAt"],
-    });
+    const withdrawals = await Withdrawal.find({ userId: user.id }).sort({ createdAt: -1 });
 
-    console.log(`[WITHDRAWAL][GET] Found ${withdrawals.length} records`);
     return NextResponse.json(withdrawals);
   } catch (err) {
     console.error("[WITHDRAWAL][GET] Error:", err);
@@ -41,22 +26,14 @@ export async function GET() {
   }
 }
 
-// ✅ POST: Create a new withdrawal
-export async function POST(request) {
-  console.log("[WITHDRAWAL][POST] Request received");
-
+export async function POST(req) {
   try {
+    await connectDB();
     const user = await getAuthenticatedUser();
-    if (!user) {
-      console.log("[WITHDRAWAL][POST] Invalid or missing token");
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const body = await request.json();
-    console.log("Incoming withdrawal request data:", body);  // Log the full body of the request
-    const { amount, tax, net } = body;
+    const { amount, tax, net } = await req.json();
 
-    // Validate input
     const isValid =
       typeof amount === "number" &&
       typeof tax === "number" &&
@@ -66,14 +43,10 @@ export async function POST(request) {
       net > 0 &&
       net === amount - tax;
 
-    if (!isValid) {
-      console.warn("[WITHDRAWAL][POST] Invalid input:", body);
-      return NextResponse.json({ error: "Invalid input" }, { status: 400 });
-    }
-    console.log("Creating new withdrawal:", { amount, tax, net, userId: user.id });
+    if (!isValid) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
 
     const newWithdrawal = await Withdrawal.create({
-      id: uuidv4(),
+      _id: uuidv4(),
       userId: user.id,
       amount,
       tax,
@@ -81,10 +54,9 @@ export async function POST(request) {
       status: "completed",
     });
 
-    console.log("New withdrawal created:", newWithdrawal); // Log the created withdrawal
     return NextResponse.json(newWithdrawal, { status: 201 });
   } catch (error) {
-    console.error("Error processing withdrawal:", error);
+    console.error("[WITHDRAWAL][POST] Error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
